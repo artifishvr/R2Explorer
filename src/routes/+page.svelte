@@ -27,6 +27,7 @@
         // Nested file
         const fileName = parts.pop()!;
         const directory = parts.join("/");
+        if (fileName === "") return;
         files.push({ name: fileName, directory, size: item.size });
 
         // Build directory hierarchy
