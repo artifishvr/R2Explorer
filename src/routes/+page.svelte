@@ -6,27 +6,28 @@
   let { host, items } = data;
 
   let folders: string[] = $state([]);
-  let files: string[] = $state([]);
+  let files: Array<{ name: string; size: number }> = $state([]);
 
   let allDirectories: string[] = $state([]);
-  let allFiles: Array<{ name: string; directory: string }> = $state([]);
+  let allFiles: Array<{ name: string; directory: string; size: number }> =
+    $state([]);
   let currentFolder: string | null = $state(null);
 
   // Process items into directory and file structure
   $effect(() => {
     const directories = new Set<string>();
-    const files: Array<{ name: string; directory: string }> = [];
+    const files: Array<{ name: string; directory: string; size: number }> = [];
 
     items.forEach((item) => {
-      const parts = item.split("/");
+      const parts = item.key.split("/");
       if (parts.length === 1) {
         // Root file
-        files.push({ name: parts[0], directory: "" });
+        files.push({ name: parts[0], directory: "", size: item.size });
       } else {
         // Nested file
         const fileName = parts.pop()!;
         const directory = parts.join("/");
-        files.push({ name: fileName, directory });
+        files.push({ name: fileName, directory, size: item.size });
 
         // Build directory hierarchy
         let currentPath = "";
@@ -51,10 +52,9 @@
 
     files = allFiles
       .filter((file) => file.directory === current)
-      .map((file) => file.name);
+      .map((file) => ({ name: file.name, size: file.size }));
   });
 
-  // Helper to navigate up directories
   function navigateUp() {
     if (!currentFolder) return;
     const parts = currentFolder.split("/");
@@ -62,9 +62,33 @@
     currentFolder = parts.length > 0 ? parts.join("/") : null;
   }
 
-  // Helper to get folder name from path
   function getFolderName(path: string) {
     return path.split("/").pop();
+  }
+
+  function formatFileSize(bytes: number) {
+    const units = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    if (bytes === 0) return "0 B";
+
+    let unitIndex = 0;
+    let size = bytes;
+
+    while (size >= 1000 && unitIndex < units.length - 1) {
+      size /= 1000;
+      unitIndex++;
+    }
+
+    let rounded = parseFloat(size.toFixed(1));
+    while (rounded >= 1000 && unitIndex < units.length - 1) {
+      rounded /= 1000;
+      unitIndex++;
+      size = rounded;
+      rounded = parseFloat(size.toFixed(1));
+    }
+
+    const formattedSize =
+      rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+    return `${formattedSize} ${units[unitIndex]}`;
   }
 </script>
 
@@ -123,14 +147,15 @@
                     class=""
                     href="https://{host}/{currentFolder
                       ? currentFolder + '/'
-                      : ''}{file}"
+                      : ''}{file.name}"
                     target="_blank"
                     ><div class="flex inline-flex hover:underline">
                       <File class="mr-2" strokeWidth={2} />
-                      {file}
+                      {file.name}
                     </div></a
                   ></td>
-                <td class="py-2">-</td>
+                <td class="py-2"
+                  >{file.size ? formatFileSize(file.size) : "-"}</td>
               </tr>
             {/each}
           </tbody>

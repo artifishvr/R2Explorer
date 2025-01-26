@@ -13,10 +13,24 @@ export async function load({
   if (dev) {
     return {
       items: [
-        "test1.meow",
-        "test2.meow",
-        "folder/test3.meow",
-        "folder/folder/test4.meow",
+        {
+          key: "test1.meow",
+          size: 12000,
+        },
+        {
+          key: "test2.meow",
+          size: 12000,
+        },
+
+        {
+          key: "folder/test3.meow",
+          size: 12000,
+        },
+
+        {
+          key: "folder/folder/test4.meow",
+          size: 12000,
+        },
       ],
       host: "dev",
     };
@@ -24,10 +38,10 @@ export async function load({
 
   const meow = await platform.env.BUCKET.list();
 
-  let objects: string[] = [];
+  let objects: any[] = [];
 
   meow.objects.forEach((object: any) => {
-    objects.push(object.key);
+    objects.push({ key: object.key, size: object.size });
   });
 
   console.log(objects);

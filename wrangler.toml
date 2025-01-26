@@ -15,9 +15,8 @@ compatibility_date = "2021-11-12"
 workers_dev = true
 
 [[r2_buckets]]
-binding = 'BUCKET' # <~ valid JavaScript variable name
-bucket_name = 'saratez' 
-preview_bucket_name = 'saratez' 
+binding = 'BUCKET'
+bucket_name = 'saratez'
 
 [vars]
 HOST = "r2.eepy.ca"
