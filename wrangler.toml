@@ -1,0 +1,23 @@
+account_id = "11466916b094dbdf53640afa656a7b45"
+name = "r2index"
+
+main = "./.cloudflare/worker.js"
+site.bucket = "./.cloudflare/public"
+
+routes = [
+  {pattern = "r2.eepy.ca", zone_name = "eepy.ca"},
+  {pattern = "r2.eepy.ca/_app/*", zone_name = "eepy.ca"},
+]
+
+build.command = "pnpm run build"
+
+compatibility_date = "2021-11-12"
+workers_dev = true
+
+[[r2_buckets]]
+binding = 'BUCKET' # <~ valid JavaScript variable name
+bucket_name = 'saratez' 
+preview_bucket_name = 'saratez' 
+
+[vars]
+HOST = "r2.eepy.ca"
